@@ -16,7 +16,6 @@
 
         $(".exchange_logo").append("<div id=\"AUDPrice\" class=\"lastPrice\" style=\"font-size: 16px; font-weight: bold; float: left; margin-left: 15px; margin-top: 8px;\"></div>");
 
-        //Set your destination currency here
         CPC.destinationCurrency = "AUD";
         CPC.$theLastPrice = $("#theLastPrice");
         CPC.$marketName = $(".market_name");
@@ -27,20 +26,14 @@
 
         CPC.fetchPrice = function(){
             $.ajax({url: "https://min-api.cryptocompare.com/data/price?fsym=" + CPC.marketNameArray[0] + "&tsyms=" + CPC.destinationCurrency})
-                .done(function(data){
+            .done(function(data){
                 if((typeof data === "Object" || typeof data === "object") && data.hasOwnProperty("AUD")){
                     CPC.$AUDPrice.html(" (" + CPC.destinationCurrency + "$" + data.AUD + ")");
                 }
             });
         };
 
-        CPC.marketNameArray = CPC.$marketName.html().split("/");
-        CPC.fetchPrice();
-
-        CPC.AUDPriceTimer = setInterval(function(){
-
-            CPC.marketNameArray = CPC.$marketName.html().split("/");
-
+        CPC.processPrice = function(){
             if(CPC.marketNameArray[1] !== CPC.destinationCurrency){
                 CPC.currentPrice = parseFloat(CPC.$theLastPrice.html(), 10);
 
@@ -50,6 +43,19 @@
                     CPC.fetchPrice();
                 }
             }
+            else {
+                CPC.$AUDPrice.html("");
+            }
+        };
+
+        CPC.marketNameArray = CPC.$marketName.html().split("/");
+        CPC.processPrice();
+
+        CPC.AUDPriceTimer = setInterval(function(){
+
+            CPC.marketNameArray = CPC.$marketName.html().split("/");
+
+            CPC.processPrice();
         }, 1000);
     });
 })();
